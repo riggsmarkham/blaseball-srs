@@ -85,7 +85,7 @@ def getLastDay(completedGames):
     return lastDay
     
 def inMiddleOfDay(completedGames, numberOfTeams):
-    return len(completedGames) % (numberOfTeams // 2) == 0
+    return len(completedGames) % (numberOfTeams // 2) != 0
 
 def printGame(game):
     print("Day %d, %s @ %s, %d-%d" % (game["day"] + 1, game["awayTeam"]["shorthand"], game["homeTeam"]
