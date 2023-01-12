@@ -87,6 +87,12 @@ def getLastDay(completedGames):
 def inMiddleOfDay(completedGames, numberOfTeams):
     return len(completedGames) % (numberOfTeams // 2) != 0
 
+def avgRunDiff(diffList):
+    return (diffList[1] - diffList[2]) / diffList[0]
+
+def pygthagWinPerc(diffList):
+    return (diffList[1] * diffList[1]) / (diffList[1] * diffList[1] + diffList[2] * diffList[2])
+
 def printGame(game):
     print("Day %d, %s @ %s, %d-%d" % (game["day"] + 1, game["awayTeam"]["shorthand"], game["homeTeam"]
           ["shorthand"], game["gameStates"][0]["awayScore"], game["gameStates"][0]["homeScore"]))
@@ -100,19 +106,19 @@ def printDayHeader(completedGames, nameList, lastDay):
 
 def printSimpleRatingSystem(scoreDict, nameList, matchupMatrix):
     n = len(nameList)
-    scoreVector = np.asarray([(scoreDict[nameList[i]][1] - scoreDict[nameList[i]][2]) / scoreDict[nameList[i]][0] for i in range(n)]) * -1
+    scoreVector = np.asarray([avgRunDiff(scoreDict[nameList[i]]) for i in range(n)]) * -1
     finalVector = linalg.solve(matchupMatrix, scoreVector)
     average_val = np.average(finalVector)
-    tempList = [[nameList[i], finalVector[i] - average_val, (scoreDict[nameList[i]][1] - scoreDict[nameList[i]][2])/scoreDict[nameList[i]][0]] for i in range(n)]
+    tempList = [[nameList[i], finalVector[i] - average_val, avgRunDiff(scoreDict[nameList[i]]), pygthagWinPerc(scoreDict[nameList[i]])] for i in range(n)]
     tempList.sort(key=lambda x: x[1], reverse=True)
     print("Simple Rating System")
-    print("%-25s%7s%7s" % ("Team Name", "Rating", "SOS"))
+    print("%-25s%8s%8s%8s" % ("Team Name", "Rating", "SOS", "Pyth W%"))
     for x in tempList:
-        print("%-25s%7.2f%7.2f" % (x[0], x[1], x[1] - x[2]))
+        print("%-25s%8.2f%8.2f%8.3f" % (x[0], x[1], x[1] - x[2], x[3]))
     print()
 
 def printRunDifferential(scoreDict):
-    tempList = [[x, (scoreDict[x][1] - scoreDict[x][2])/scoreDict[x][0]] for x in scoreDict.keys()]
+    tempList = [[x, avgRunDiff(scoreDict[x])] for x in scoreDict.keys()]
     tempList.sort(key=lambda x: x[1], reverse=True)
     print("Teams by run differential per game:")
     for x in tempList:
@@ -140,7 +146,7 @@ def printIterativeSRS(nameList, completedGames, scoreDict, iterations):
         matchupArr[awayIndex][homeIndex] += 1
         matchupArr[homeIndex][awayIndex] += 1
 
-    teamRatings = [[(scoreDict[nameList[i]][1] - scoreDict[nameList[i]][2]) / scoreDict[nameList[i]][0] for i in range(n)]]
+    teamRatings = [[avgRunDiff(scoreDict[nameList[i]]) for i in range(n)]]
 
     print(f"Iterative SRS ({iterations} iterations)")
     for iteration in range(0, iterations):
@@ -160,6 +166,19 @@ def printIterativeSRS(nameList, completedGames, scoreDict, iterations):
     val_arr.sort(key=lambda x: x[2], reverse=True)
     for x in val_arr:
         print("%-25s%7.2f%7.2f" % (x[0], x[1], x[2]))
+
+def printWingsLosses(completedGames, gameIdDict):
+    lossList = []
+    for x in completedGames:
+        if x["awayTeam"]["name"] == "Mexico City Wild Wings":
+            if x["gameStates"][0]["homeScore"] > x["gameStates"][0]["awayScore"]:
+                lossList.append(x)
+        elif x["homeTeam"]["name"] == "Mexico City Wild Wings":
+            if x["gameStates"][0]["homeScore"] < x["gameStates"][0]["awayScore"]:
+                lossList.append(x)
+    for x in lossList:
+        printGame(gameIdDict[x["id"]])
+    print()
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -191,3 +210,4 @@ printSimpleRatingSystem(scoreDict, nameList, matchupMatrix)
 #printHighestIndividualScoringMatches(highScoreIds, completeGameIdDict)
 #printHighestTotalScoringMatches(highestTotalScoreIds, completeGameIdDict)
 #printIterativeSRS(nameList, completedGames, scoreDict, 10)
+#printWingsLosses(completedGames, completeGameIdDict)
