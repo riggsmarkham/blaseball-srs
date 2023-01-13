@@ -4,10 +4,12 @@ import numpy as np
 import numpy.linalg as linalg
 import csv
 
+nameFieldInUse = "name"
+
 def createScoreDict(completedGames):
     scoreDict = dict()
     for x in completedGames:
-        awayTeam = x["awayTeam"]["name"]
+        awayTeam = x["awayTeam"][nameFieldInUse]
         if awayTeam not in scoreDict.keys():
             scoreDict[awayTeam] = [1, x["gameStates"][0]["awayScore"], x["gameStates"][0]["homeScore"]]
         else:
@@ -15,7 +17,7 @@ def createScoreDict(completedGames):
             scoreDict[awayTeam][1] += x["gameStates"][0]["awayScore"]
             scoreDict[awayTeam][2] += x["gameStates"][0]["homeScore"]
 
-        homeTeam = x["homeTeam"]["name"]
+        homeTeam = x["homeTeam"][nameFieldInUse]
         if homeTeam not in scoreDict.keys():
             scoreDict[homeTeam] = [1, x["gameStates"][0]["homeScore"], x["gameStates"][0]["awayScore"]]
         else:
@@ -27,10 +29,10 @@ def createScoreDict(completedGames):
 def createNameList(completedGames):
     nameList = []
     for x in completedGames:
-        if x["awayTeam"]["name"] not in nameList:
-            nameList.append(x["awayTeam"]["name"])
-        if x["homeTeam"]["name"] not in nameList:
-            nameList.append(x["homeTeam"]["name"])
+        if x["awayTeam"][nameFieldInUse] not in nameList:
+            nameList.append(x["awayTeam"][nameFieldInUse])
+        if x["homeTeam"][nameFieldInUse] not in nameList:
+            nameList.append(x["homeTeam"][nameFieldInUse])
     nameList.sort()
     return nameList
 
@@ -104,8 +106,8 @@ def printIterativeSRS(completedGames, scoreDict, nameList, iterations):
 def getMatchupArr(completedGames, nameList):
     matchupArr = [[0 for _ in range(len(nameList))] for _ in range(len(nameList))]
     for x in completedGames:
-        awayIndex = nameList.index(x["awayTeam"]["name"])
-        homeIndex = nameList.index(x["homeTeam"]["name"])
+        awayIndex = nameList.index(x["awayTeam"][nameFieldInUse])
+        homeIndex = nameList.index(x["homeTeam"][nameFieldInUse])
         matchupArr[awayIndex][homeIndex] += 1
         matchupArr[homeIndex][awayIndex] += 1
     return matchupArr
@@ -185,16 +187,42 @@ def writePitchersInningPitched(completedGames, lastDay):
             filteredGames.append(x)
     pitcherDict = dict()
     for x in filteredGames:
-        pitcherDict[x["awayPitcher"]["name"]] = pitcherDict.get(x["awayPitcher"]["name"], 0) + x["gameStates"][0]["inning"] + 1
-        pitcherDict[x["homePitcher"]["name"]] = pitcherDict.get(x["homePitcher"]["name"], 0) + x["gameStates"][0]["inning"] + 1
+        pitcherDict[x["awayPitcher"][nameFieldInUse]] = pitcherDict.get(x["awayPitcher"][nameFieldInUse], 0) + x["gameStates"][0]["inning"] + 1
+        pitcherDict[x["homePitcher"][nameFieldInUse]] = pitcherDict.get(x["homePitcher"][nameFieldInUse], 0) + x["gameStates"][0]["inning"] + 1
     pitcherArr = [[key, value] for key, value in pitcherDict.items()]
     pitcherArr.sort(key=lambda x: x[0])
     with open("pitchersIP.csv", mode="w") as csv_file:
-        fieldnames = ["name", "ip"]
+        fieldnames = [nameFieldInUse, "ip"]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for x in pitcherArr:
-            writer.writerow({"name": x[0], "ip": x[1]})
+            writer.writerow({nameFieldInUse: x[0], "ip": x[1]})
+
+def writeWLPerTeam(completedGames, nameList):
+    n = len(nameList)
+    wlArr = [[[0,0] for _ in range(n)] for _ in range(n)]
+    for x in completedGames:
+        awayIndex = nameList.index(x["awayTeam"][nameFieldInUse])
+        homeIndex = nameList.index(x["homeTeam"][nameFieldInUse])
+        if (x["gameStates"][0]["awayScore"] > x["gameStates"][0]["homeScore"]):
+            wlArr[awayIndex][homeIndex][0] += 1
+            wlArr[homeIndex][awayIndex][1] += 1
+        else:
+            wlArr[awayIndex][homeIndex][1] += 1
+            wlArr[homeIndex][awayIndex][0] += 1
+    rows = []
+    for i in range(n):
+        newRow = [nameList[i] + " W%"]
+        for x in wlArr[i]:
+            if (x[0] + x[1] == 0):
+                newRow.append("")
+            else:
+                newRow.append("%.2f" % (x[0] / (x[0] + x[1])))
+        rows.append(newRow)
+    with open("wlByTeam.csv", mode="w") as csv_file:
+        csvwriter = csv.writer(csv_file)
+        csvwriter.writerow([""] + ["vs " + x for x in nameList])
+        csvwriter.writerows(rows)
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -216,10 +244,11 @@ scoreDict = createScoreDict(completedGames)
 
 printDayHeader(completedGames, len(nameList))
 printSimpleRatingSystem(completedGames, scoreDict, nameList)
-#printIterativeSRS(completedGames, scoreDict, nameList, 10)
+#printIterativeSRS(completedGames, scoreDict, nameList, 6)
 #printRunDifferentialChart(scoreDict, nameList)
 #printHighestIndividualScoringGames(completedGames)
 #printHighestTotalScoringGames(completedGames)
 #printLongestGames(completedGames)
 #printWingsLosses(completedGames)
 #writePitchersInningPitched(completedGames, 74)
+#writeWLPerTeam(completedGames, nameList)
