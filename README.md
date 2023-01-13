@@ -13,3 +13,5 @@ If you want to use this, in order to access the api, you need to create a config
     password = your_password
 
 I've also got other stuff in here (e.g. pythagoren win percentage), and I'm going to add more things that interest me.
+
+Season 1 Id: cd1b6714-f4de-4dfc-a030-851b3459d8d1

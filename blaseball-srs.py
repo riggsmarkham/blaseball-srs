@@ -2,6 +2,7 @@ import requests
 import configparser
 import numpy as np
 import numpy.linalg as linalg
+import csv
 
 def createScoreDict(completedGames):
     scoreDict = dict()
@@ -177,6 +178,24 @@ def printWingsLosses(completedGames):
         printGame(x)
     print()
 
+def writePitchersInningPitched(completedGames, lastDay):
+    filteredGames = []
+    for x in completedGames:
+        if x["day"] < lastDay:
+            filteredGames.append(x)
+    pitcherDict = dict()
+    for x in filteredGames:
+        pitcherDict[x["awayPitcher"]["name"]] = pitcherDict.get(x["awayPitcher"]["name"], 0) + x["gameStates"][0]["inning"] + 1
+        pitcherDict[x["homePitcher"]["name"]] = pitcherDict.get(x["homePitcher"]["name"], 0) + x["gameStates"][0]["inning"] + 1
+    pitcherArr = [[key, value] for key, value in pitcherDict.items()]
+    pitcherArr.sort(key=lambda x: x[0])
+    with open("pitchersIP.csv", mode="w") as csv_file:
+        fieldnames = ["name", "ip"]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for x in pitcherArr:
+            writer.writerow({"name": x[0], "ip": x[1]})
+
 config = configparser.ConfigParser()
 config.read("config.ini")
 
@@ -203,3 +222,4 @@ printSimpleRatingSystem(completedGames, scoreDict, nameList)
 #printHighestTotalScoringGames(completedGames)
 #printLongestGames(completedGames)
 #printWingsLosses(completedGames)
+#writePitchersInningPitched(completedGames, 74)
