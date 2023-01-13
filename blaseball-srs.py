@@ -57,18 +57,13 @@ def printDayHeader(completedGames, numberOfTeams):
 
 def printSimpleRatingSystem(completedGames, scoreDict, nameList):
     n = len(nameList)
-    matchupMatrix = np.zeros((n, n))
-    for x in completedGames:
-        awayIndex = nameList.index(x["awayTeam"]["name"])
-        homeIndex = nameList.index(x["homeTeam"]["name"])
-        matchupMatrix[awayIndex][homeIndex] += 1
-        matchupMatrix[homeIndex][awayIndex] += 1
+    matchupMatrix = np.asfarray(getMatchupArr(completedGames, nameList))
     for i in range(n):
         matchupMatrix[i] /= matchupMatrix[i].sum()
     for i in range(n):
         matchupMatrix[i][i] = -1
 
-    scoreVector = np.asarray([avgRunDiff(scoreDict[nameList[i]]) for i in range(n)]) * -1
+    scoreVector = np.asarray(getAvgRunDiffArr(scoreDict, nameList)) * -1
     finalVector = linalg.solve(matchupMatrix, scoreVector)
     average_val = np.average(finalVector)
 
@@ -79,6 +74,43 @@ def printSimpleRatingSystem(completedGames, scoreDict, nameList):
     for x in tempList:
         print("%-25s%8.2f%8.2f" % (x[0], x[1], x[1] - x[2]))
     print()
+
+def printIterativeSRS(completedGames, scoreDict, nameList, iterations):
+    n = len(nameList)
+    matchupArr = getMatchupArr(completedGames, nameList)
+    teamRatings = [getAvgRunDiffArr(scoreDict, nameList)]
+
+    print(f"Iterative SRS ({iterations} iterations)")
+    for iteration in range(0, iterations):
+        teamRatings.append([])
+        for i in range(n):
+            sum_games = 0
+            average_sum = 0
+            for j in range(n):
+                num_games_opponent = matchupArr[i][j]
+                if num_games_opponent != 0 and j != i:
+                    sum_games += num_games_opponent
+                    average_sum += teamRatings[iteration][j] * num_games_opponent
+            teamRatings[iteration + 1].append(teamRatings[0][i] + average_sum / sum_games)
+
+    print("%-25s%7s%7s" % ("Team Name", "Start", "End"))
+    val_arr = [[nameList[i], teamRatings[0][i], teamRatings[iterations][i]] for i in range(n)]
+    val_arr.sort(key=lambda x: x[2], reverse=True)
+    for x in val_arr:
+        print("%-25s%7.2f%7.2f" % (x[0], x[1], x[2]))
+    print()
+
+def getMatchupArr(completedGames, nameList):
+    matchupArr = [[0 for _ in range(len(nameList))] for _ in range(len(nameList))]
+    for x in completedGames:
+        awayIndex = nameList.index(x["awayTeam"]["name"])
+        homeIndex = nameList.index(x["homeTeam"]["name"])
+        matchupArr[awayIndex][homeIndex] += 1
+        matchupArr[homeIndex][awayIndex] += 1
+    return matchupArr
+
+def getAvgRunDiffArr(scoreDict, nameList):
+    return [avgRunDiff(scoreDict[nameList[i]]) for i in range(len(nameList))]
 
 def printRunDifferentialChart(scoreDict, nameList):
     tempList = [[x, scoreDict[x][0], scoreDict[x][1], scoreDict[x][2], avgRunDiff(scoreDict[x]), pygthagWinPerc(scoreDict[x])] for x in nameList]
@@ -134,36 +166,6 @@ def printLongestGames(completedGames):
         printGame(x)
     print()
 
-def printIterativeSRS(nameList, completedGames, scoreDict, iterations):
-    n = len(nameList)
-    matchupArr = [[0 for _ in range(n)] for _ in range(n)]
-    for x in completedGames:
-        awayIndex = nameList.index(x["awayTeam"]["name"])
-        homeIndex = nameList.index(x["homeTeam"]["name"])
-        matchupArr[awayIndex][homeIndex] += 1
-        matchupArr[homeIndex][awayIndex] += 1
-
-    teamRatings = [[avgRunDiff(scoreDict[nameList[i]]) for i in range(n)]]
-
-    print(f"Iterative SRS ({iterations} iterations)")
-    for iteration in range(0, iterations):
-        teamRatings.append([])
-        for i in range(n):
-            sum_games = 0
-            average_sum = 0
-            for j in range(n):
-                num_games_opponent = matchupArr[i][j]
-                if num_games_opponent != 0 and j != i:
-                    sum_games += num_games_opponent
-                    average_sum += teamRatings[iteration][j] * num_games_opponent
-            teamRatings[iteration + 1].append(teamRatings[0][i] + average_sum / sum_games)
-
-    print("%-25s%7s%7s" % ("Team Name", "Start", "End"))
-    val_arr = [[nameList[i], teamRatings[0][i], teamRatings[iterations][i]] for i in range(n)]
-    val_arr.sort(key=lambda x: x[2], reverse=True)
-    for x in val_arr:
-        print("%-25s%7.2f%7.2f" % (x[0], x[1], x[2]))
-
 def printWingsLosses(completedGames):
     lossList = []
     for x in completedGames:
@@ -195,9 +197,9 @@ scoreDict = createScoreDict(completedGames)
 
 printDayHeader(completedGames, len(nameList))
 printSimpleRatingSystem(completedGames, scoreDict, nameList)
+#printIterativeSRS(completedGames, scoreDict, nameList, 10)
 #printRunDifferentialChart(scoreDict, nameList)
 #printHighestIndividualScoringGames(completedGames)
 #printHighestTotalScoringGames(completedGames)
 #printLongestGames(completedGames)
-#printIterativeSRS(nameList, completedGames, scoreDict, 10)
 #printWingsLosses(completedGames)
