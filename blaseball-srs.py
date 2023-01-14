@@ -46,15 +46,20 @@ def printGame(game):
     print("Day %d, %s @ %s, %d-%d" % (game["day"] + 1, game["awayTeam"]["shorthand"], game["homeTeam"]
           ["shorthand"], game["gameStates"][0]["awayScore"], game["gameStates"][0]["homeScore"]))
 
-def printDayHeader(completedGames, numberOfTeams):
+def printDayHeader(gamesList, completedGames):
     lastDay = 0
-    for x in completedGames:
-        if x["day"] > lastDay:
+    foundOngoingGame = False
+    for x in gamesList:
+        if x["started"] and not x["complete"]:
             lastDay = x["day"]
-    inMiddleOfDay = len(completedGames) % (numberOfTeams // 2) != 0
-    if (inMiddleOfDay):
+            foundOngoingGame = True
+            break
+    if foundOngoingGame:
         print("In the midst of day %d" % (lastDay + 1))
     else:
+        for x in completedGames:
+            if x["day"] > lastDay:
+                lastDay = x["day"]
         print("At the end of day %d" % (lastDay + 1))
     print()
 
@@ -224,25 +229,32 @@ def writeWLPerTeam(completedGames, nameList):
         csvwriter.writerow([""] + ["vs " + x for x in nameList])
         csvwriter.writerows(rows)
 
-config = configparser.ConfigParser()
-config.read("config.ini")
+def getGamesList():
+    config = configparser.ConfigParser()
+    config.read("config.ini")
 
-login_uri = "https://api2.blaseball.com//auth/sign-in"
-login_payload = {"email": config["login"]["email"], "password": config["login"]["password"]}
-bb_session = requests.Session()
-bb_session.post(login_uri, login_payload)
+    login_uri = "https://api2.blaseball.com//auth/sign-in"
+    login_payload = {"email": config["login"]["email"], "password": config["login"]["password"]}
+    bb_session = requests.Session()
+    bb_session.post(login_uri, login_payload)
 
-sim_uri = "https://api2.blaseball.com/sim"
-sim_response = bb_session.get(sim_uri)
-season_id = sim_response.json()["simData"]["currentSeasonId"]
-games_uri = "https://api2.blaseball.com/seasons/" + season_id + "/games"
-games_response = bb_session.get(games_uri)
+    sim_uri = "https://api2.blaseball.com/sim"
+    sim_response = bb_session.get(sim_uri)
+    season_id = sim_response.json()["simData"]["currentSeasonId"]
+    print(season_id)
+    games_uri = "https://api2.blaseball.com/seasons/" + season_id + "/games"
+    return bb_session.get(games_uri).json()
 
-completedGames = [x for x in games_response.json() if x["complete"]]
+def getGamesListMirror():
+    games_uri = "https://api2.sibr.dev/mirror/games"
+    return requests.get(games_uri).json()
+
+gamesList = getGamesListMirror()
+completedGames = [x for x in gamesList if x["complete"]]
 nameList = createNameList(completedGames)
 scoreDict = createScoreDict(completedGames)
 
-printDayHeader(completedGames, len(nameList))
+printDayHeader(gamesList, completedGames)
 printSimpleRatingSystem(completedGames, scoreDict, nameList)
 #printIterativeSRS(completedGames, scoreDict, nameList, 6)
 #printRunDifferentialChart(scoreDict, nameList)
@@ -250,5 +262,5 @@ printSimpleRatingSystem(completedGames, scoreDict, nameList)
 #printHighestTotalScoringGames(completedGames)
 #printLongestGames(completedGames)
 #printWingsLosses(completedGames)
-#writePitchersInningPitched(completedGames, 74)
+#writePitchersInningPitched(completedGames, 95)
 #writeWLPerTeam(completedGames, nameList)
