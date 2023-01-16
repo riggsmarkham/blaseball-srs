@@ -118,7 +118,7 @@ def printRunDifferentialChart(scoreDict, nameList):
     print()
 
 # part that actually gets the data and runs the functions
-gamesList = games.getGamesList()
+gamesList = games.getGamesListMirror()
 nameList = games.createNameList(gamesList, nameFieldInUse)
 completedGames = [x for x in gamesList if x["complete"]]
 scoreDict = createScoreDict(completedGames)

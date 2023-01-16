@@ -15,8 +15,8 @@ If you want to use this with the blaseball api (not the mirror), in order to acc
     email = your_email
     password = your_password
 
-I've also got other stuff in here (e.g. pythagoren win percentage), and I'm going to add more things that interest me.
-Most of my other stuff is in misc.py.
+I've also got other stuff in here (e.g. pythagorean win percentage), and I'm going to add more things that interest me.
+Most of my other random stuff is in misc.py. Will I move it out of this repo? We'll see...
 
 Season 1 Id: cd1b6714-f4de-4dfc-a030-851b3459d8d1
 
