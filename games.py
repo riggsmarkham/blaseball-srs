@@ -1,6 +1,8 @@
 import requests
 import configparser
 
+# Queries blaseball's api for the list of games in the current season using login info in config.ini
+# Down right now for some reason
 def getGamesList():
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -13,14 +15,16 @@ def getGamesList():
     sim_uri = "https://api2.blaseball.com/sim"
     sim_response = bb_session.get(sim_uri)
     season_id = sim_response.json()["simData"]["currentSeasonId"]
-    print(season_id)
     games_uri = "https://api2.blaseball.com/seasons/" + season_id + "/games"
-    return bb_session.get(games_uri).json()
+    games_response = bb_session.get(games_uri).json()
+    return games_response
 
+# Very helpful mirror of games api that I'm using for now instead
 def getGamesListMirror():
     games_uri = "https://api2.sibr.dev/mirror/games"
     return requests.get(games_uri).json()
 
+# Creates alphabetical list of team names from list of games
 def createNameList(gamesList, nameField):
     nameList = []
     for x in gamesList:
@@ -32,6 +36,7 @@ def createNameList(gamesList, nameField):
     nameList.sort()
     return nameList
 
+# Prints out a header for displaying when the games took place
 def printDayHeader(gamesList):
     lastDay = 0
     foundOngoingGame = False

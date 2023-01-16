@@ -1,10 +1,12 @@
 import csv
 import games
 
+# Prints out game in a format good for indicating records
 def printGame(game):
     print("Day %d, %s @ %s, %d-%d" % (game["day"] + 1, game["awayTeam"]["shorthand"], game["homeTeam"]
           ["shorthand"], game["gameStates"][0]["awayScore"], game["gameStates"][0]["homeScore"]))
 
+# Prints out all the games that hold/tie the record for one team scoring the most runs
 def printHighestIndividualScoringGames(completedGames):
     highestScore = 0
     games = []
@@ -20,6 +22,7 @@ def printHighestIndividualScoringGames(completedGames):
         printGame(x)
     print()
 
+# Prints out all the games that hold/tie the record for two teams scoring the most runs combined
 def printHighestTotalScoringGames(completedGames):
     highestScore = 0
     games = []
@@ -35,6 +38,7 @@ def printHighestTotalScoringGames(completedGames):
         printGame(x)
     print()
 
+# Prints out all the games that hold/tie the record for most innings
 def printLongestGames(completedGames):
     mostInnings = 0
     games = []
@@ -50,6 +54,7 @@ def printLongestGames(completedGames):
         printGame(x)
     print()
 
+# Prints out all the games that the Mexico City Wild Wings lost
 def printWingsLosses(completedGames):
     lossList = []
     for x in completedGames:
@@ -61,6 +66,7 @@ def printWingsLosses(completedGames):
         printGame(x)
     print()
 
+# Writes pitchers' names and their innings pitched to pitchersIP.csv
 def writePitchersInningPitched(completedGames, lastDay):
     filteredGames = []
     for x in completedGames:
@@ -79,6 +85,7 @@ def writePitchersInningPitched(completedGames, lastDay):
         for x in pitcherArr:
             writer.writerow({"name": x[0], "ip": x[1]})
 
+# Writes a table showing the win percentage of each team against each other to wlByTeam.csv
 def writeWLPerTeam(completedGames, nameList):
     n = len(nameList)
     wlArr = [[[0,0] for _ in range(n)] for _ in range(n)]
@@ -105,6 +112,7 @@ def writeWLPerTeam(completedGames, nameList):
         csvwriter.writerow([""] + ["vs " + x for x in nameList])
         csvwriter.writerows(rows)
 
+# part that actually gets the data and runs the functions
 gamesList = games.getGamesListMirror()
 nameList = games.createNameList(gamesList, "shorthand")
 completedGames = [x for x in gamesList if x["complete"]]
