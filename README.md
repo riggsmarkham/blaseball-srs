@@ -3,7 +3,7 @@
 An attempt to implement a simple rating system for blaseball (one that only takes into account run differential and strength of schedule).
 Future updates (that'll make it less simple) are in the works.
 
-Just run srs.py to get a printout of the ratings and run differentials.
+Now, just run srs2.py to get a printout of the ratings.
 
 Trying to copy the method described here: <https://web.archive.org/web/20161031224357/http://www.pro-football-reference.com/blog/index4837.html>
 
@@ -29,3 +29,7 @@ Modifications to make:
   * Split defensive ratings by pitcher
   * Figure out variance relation of high scoring vs. low scoring environment
   * Figure out how to use that variance relation to combine offense/defense ratings properly
+* SRS v3
+  * Create separate ratings for distinct **versions** of offenses and defenses
+    * Attribute changes and player changes will separate different versions
+    * As long as there's 1 consistent offense or defense, cross-seasonal comparisons should be possible
