@@ -120,10 +120,10 @@ def printRunDifferentialChart(scoreDict, nameList):
 # part that actually gets the data and runs the functions
 gamesList = games.getGamesListMirror()
 nameList = games.createNameList(gamesList, nameFieldInUse)
-completedGames = [x for x in gamesList if x["complete"]]
+completedGames = [x for x in gamesList if (x["complete"] and x["day"] < 90)]
 scoreDict = createScoreDict(completedGames)
 
-games.printDayHeader(gamesList)
+games.printDayHeader(gamesList, completedGames)
 printSimpleRatingSystem(completedGames, scoreDict, nameList)
 #printIterativeSRS(completedGames, scoreDict, nameList, 6)
-printRunDifferentialChart(scoreDict, nameList)
+#printRunDifferentialChart(scoreDict, nameList)

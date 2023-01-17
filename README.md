@@ -23,9 +23,7 @@ Season 1 Id: cd1b6714-f4de-4dfc-a030-851b3459d8d1
 Modifications to make:
 
 * Put season ids in the config file (auto-updating)
-* Allow setting a maximum day for gamesList
 * SRS v2
-  * Have everything work on per inning basis (or per 9 innings)
   * Use some sort of regression to find best exponent for pythagorean W%
   * Figure out how to have separate offense & defense ratings in the SRS
   * Split defensive ratings by pitcher

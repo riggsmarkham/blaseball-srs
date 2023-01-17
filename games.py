@@ -37,14 +37,14 @@ def createNameList(gamesList, nameField):
     return nameList
 
 # Prints out a header for displaying when the games took place
-def printDayHeader(gamesList):
+def printDayHeader(gamesList, validGames):
     lastDay = 0
+    for x in validGames:
+        if x["day"] > lastDay:
+            lastDay = x["day"]
     foundOngoingGame = False
     for x in gamesList:
-        if x["complete"]:
-            if x["day"] > lastDay:
-                lastDay = x["day"]
-        elif x["started"]:
+        if x["day"] <= lastDay and x["started"] and not x["complete"]:
             lastDay = x["day"]
             foundOngoingGame = True
             break

@@ -117,7 +117,7 @@ gamesList = games.getGamesListMirror()
 nameList = games.createNameList(gamesList, "shorthand")
 completedGames = [x for x in gamesList if x["complete"]]
 
-games.printDayHeader(gamesList)
+games.printDayHeader(gamesList, completedGames)
 printHighestIndividualScoringGames(completedGames)
 printHighestTotalScoringGames(completedGames)
 printLongestGames(completedGames)
