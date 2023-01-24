@@ -113,7 +113,8 @@ def writeWLPerTeam(completedGames, nameList):
         csvwriter.writerows(rows)
 
 # part that actually gets the data and runs the functions
-gamesList = games.getGamesListMirror()
+gamesList = games.getGamesList(1)
+#gamesList = games.getCurrentGamesListMirror()
 nameList = games.createNameList(gamesList, "shorthand")
 completedGames = [x for x in gamesList if x["complete"]]
 
@@ -123,4 +124,4 @@ printHighestTotalScoringGames(completedGames)
 printLongestGames(completedGames)
 printWingsLosses(completedGames)
 #writePitchersInningPitched(completedGames, 95)
-#writeWLPerTeam(completedGames, nameList)
+writeWLPerTeam(completedGames, nameList)

@@ -19,10 +19,10 @@ I've also got other stuff in here (e.g. pythagorean win percentage), and I'm goi
 Most of my other random stuff is in misc.py. Will I move it out of this repo? We'll see...
 
 Season 1 Id: cd1b6714-f4de-4dfc-a030-851b3459d8d1
+Season 2 Id: 7af53acf-1fb9-40e8-96c7-ab8308a353f9
 
 Modifications to make:
 
-* Put season ids in the config file (auto-updating)
 * SRS v2
   * Use some sort of regression to find best exponent for pythagorean W%
   * Figure out how to have separate offense & defense ratings in the SRS

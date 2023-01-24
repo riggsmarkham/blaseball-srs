@@ -66,7 +66,8 @@ def printSimpleRatingSystem(completedGames, scoreDict, nameList):
 # 3. Calculates new ratings using each team's new SOS
 # 4. Feeds new ratings into step #1
 # The ratings converge to the ratings found in the other SRS algorithm (6 iterations seems to work for 2 decimal places)
-# For some reason, the numbers don't exactly match the other SRS when including postseason games
+# The numbers don't exactly match the other SRS when including postseason games,
+# because the average in the other SRS doesn't account for some teams playing more games than others.
 def printIterativeSRS(completedGames, scoreDict, nameList, iterations):
     n = len(nameList)
     matchupArr = getMatchupArr(completedGames, nameList)
@@ -118,7 +119,7 @@ def printRunDifferentialChart(scoreDict, nameList):
     print()
 
 # part that actually gets the data and runs the functions
-gamesList = games.getGamesListMirror()
+gamesList = games.getCurrentGamesList()
 nameList = games.createNameList(gamesList, nameFieldInUse)
 completedGames = [x for x in gamesList if (x["complete"] and x["day"] < 90)]
 scoreDict = createScoreDict(completedGames)

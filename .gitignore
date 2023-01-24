@@ -1,3 +1,4 @@
 *.ini
 .vscode/
 *.csv
+!seasons.csv
