@@ -38,7 +38,7 @@ def createScoreDict(completedGames):
 # works on per 9 inning basis, accounts for some teams playing more games than others
 # also, later, I want it to incorporate pitchers into SOS
 # and correct for the run variance issue
-def printSRS2(completedGames, scoreDict, nameList):
+def printSRS2(completedGames, scoreDict, nameList, markdownTable):
     n = len(nameList)
     matchupMatrix = np.zeros((n, n))
     for game in completedGames:
@@ -60,9 +60,15 @@ def printSRS2(completedGames, scoreDict, nameList):
     tempList = [[nameList[i], finalVector[i] - average_val, scoreDict[nameList[i]][6]] for i in range(n)]
     tempList.sort(key=lambda x: x[1], reverse=True)
     print("Simple Rating System v2")
-    print("%-25s%8s%8s" % ("Team Name", "Rating", "SOS"))
-    for x in tempList:
-        print("%-25s%8.2f%8.2f" % (x[0], x[1], x[1] - x[2]))
+    if markdownTable:
+        print("Team Name|Rating|SOS")
+        print("-|-|-")
+        for x in tempList:
+            print("%s|%.2f|%.2f" % (x[0], x[1], x[1] - x[2]))
+    else:
+        print("%-25s%8s%8s" % ("Team Name", "Rating", "SOS"))
+        for x in tempList:
+            print("%-25s%8.2f%8.2f" % (x[0], x[1], x[1] - x[2]))
     print()
 
 # 2nd version of SRS
@@ -119,7 +125,7 @@ if len(completedGames) > 0:
     scoreDict = createScoreDict(completedGames)
 
     games.printDayHeader(gamesList, completedGames)
-    printSRS2(completedGames, scoreDict, nameList)
-    printIterativeSRS2(completedGames, scoreDict, nameList, 2, 1000)
+    printSRS2(completedGames, scoreDict, nameList, False)
+    # printIterativeSRS2(completedGames, scoreDict, nameList, 2, 1000)
 else:
     print("No Games Completed.")
