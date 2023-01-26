@@ -25,7 +25,11 @@ def getCurrentGamesList():
         with open('season.csv', 'a') as file:
             file.write(f"\n{season_num},{season_id}")
     games_uri = "https://api2.blaseball.com/seasons/" + season_id + "/games"
-    return bb_session.get(games_uri).json()
+    games_list = bb_session.get(games_uri).json()
+    if not isinstance(games_list, list):
+        raise ConnectionError('Something went wrong with the API: ' + str(games_list))
+    else:
+        return games_list
 
 # Very helpful mirror of games api when it happens to be down
 def getCurrentGamesListMirror():
